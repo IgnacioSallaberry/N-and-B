@@ -47,11 +47,35 @@ def NandB (name):
         i+=1
     imarray = np.array(imarray)
     
-    STD = np.std(imarray, axis=0)
+    STD = np.std(imarray, axis=0)   #axis=0   recorre en profundidad la matriz en 3D----> numpy.sum(matriz, axis=0)
     k_medio = np.mean(imarray, axis=0)
     B = np.divide(STD**2-sigma_cero**2,k_medio-detector_offset)
     B = B.ravel()   #esto hace que el array de matrices se haga simplemente una array de valores del brillo
     
+    return(STD, k_medio, B, imarray)
+
+
+
+
+def NandB_detrend (name):
+
+    
+#==============================================================================
+#                                CALIBRACION DE DETECTOR
+#==============================================================================    
+    detector_offset = 0
+    S_factor = 1
+    sigma_cero = 0
+    
+    #detector_offset = 0.197
+    #S_factor = 4.008
+    #sigma_cero = 0.002
+    
+    
+    STD = np.std(imarray, axis=0)
+    k_medio = np.mean(imarray, axis=0)
+    B = np.divide(STD**2-sigma_cero**2,k_medio-detector_offset)
+    B = B.ravel()   #esto hace que el array de matrices se haga simplemente una array de valores del brillo
+   
+    
     return(STD, k_medio, B)
-
-

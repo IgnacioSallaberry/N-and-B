@@ -9,8 +9,20 @@ from PIL import Image
 
 import matplotlib as plt
 import matplotlib.pyplot as plt
+from matplotlib import colors
 from scipy.stats import norm
 import matplotlib.mlab as mlab
+
+
+import sys
+sys.path.append(r'C:\Users\ETCasa\Desktop\New folder')    #buscar carpeta donde está el archivo funcion_de_NandB.py
+
+
+from funcion_de_NandB import NandB
+
+
+
+
 #==============================================================================
 #                                Tipografía de los gráficos
 #==============================================================================    
@@ -29,63 +41,26 @@ plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 plt.close('all')
 
 #==============================================================================
-#                                CALIBRACION DE DETECTOR
-#==============================================================================    
-detector_offset = 0
-S_factor = 1
-sigma_cero = 0
-
-#detector_offset = 0.197
-#S_factor = 4.008
-#sigma_cero = 0.002
+#                                STD - k_medio - Brillo
+#==============================================================================  
+STD_mRFP, k_medio_mRFP, B_mRFP, imarray_mRFP = NandB(r'C:\Users\ETCasa\Nextcloud\UNSAM\UNSAM 28-11 EXP 3 y 4\Experimento 4\Neuronas\RFP citoplasmática\Image0027.tif.frames\Image0027_C001T001.tif')
+STD_M6a, k_medio_M6a, B_M6a, imarray_M6a = NandB(r'C:\Users\ETCasa\Nextcloud\UNSAM\UNSAM 28-11 EXP 3 y 4\Experimento 4\Neuronas\M6a RFP\Image0020.tif.frames\Image0020_C001T001.tif')
 
 
-##==============================================================================
-##
-##                                    mRFP
-##
-##==============================================================================    
+#==============================================================================
+#                                Gráficos mRFP
+#==============================================================================  
+plt.figure()
+#plt.hexbin(k_medio.ravel(),B)
+plt.hist2d(k_medio_mRFP.ravel(),B_mRFP,bins=500,range=[[min(k_medio_mRFP.ravel()), max(k_medio_mRFP.ravel())], [min(B_mRFP), max(B_mRFP)]],
+           norm=colors.LogNorm())
+plt.show()
 
-
-####  ------------------------    PARA UNA IMAGEN    -------------------
-im = Image.open(r'C:\Users\ETCasa\Nextcloud\UNSAM\UNSAM 28-11 EXP 3 y 4\Experimento 4\Neuronas\RFP citoplasmática\Image0027.tif.frames\Image0027_C001T001.tif')   #importa la imagen .tif
-im = np.array(im) #crea una matriz de valores de la imagen importada
-imarray = [im.tolist()]
-####  ------------------------    armo los nombres de los archivos    -------------------
-i=2
-indice=[]
-while i<101:
-    if i<10:
-        indice.append(f'00{i}')
-    elif 9<i<100:
-        indice.append(f'0{i}')
-    else:
-        indice.append(f'{i}')
-    i+=1
-####  ------------------------    armo array con las matrices de las 100 imágenes  -------------------
-i=1
-while i<len(indice):
-    im = Image.open(r'C:\Users\ETCasa\Nextcloud\UNSAM\UNSAM 28-11 EXP 3 y 4\Experimento 4\Neuronas\RFP citoplasmática\Image0027.tif.frames\Image0027_C001T{}.tif'.format(indice[i]))   #importa la imagen .tif
-    im = np.array(im) #crea una matriz de valores de la imagen importada
-    imarray.append(im.tolist())
-    print(i)    
-    i+=1
-imarray = np.array(imarray)
-
-STD = np.std(imarray, axis=0)
-k_medio = np.mean(imarray, axis=0)
-B = np.divide(STD**2-sigma_cero**2,k_medio-detector_offset)
-B = B.ravel()   #esto hace que el array de matrices se haga simplemente una array de valores del brillo
-
-
-#STD[0][0]**2/N[0][0] == B[0][0]
-#STD[0][1]**2/N[0][1] == B[0][1]
-#STD[1][0]**2/N[1][0] == B[1][0]
 
 bineado = 5000
-plt.figure(1)
+plt.figure()
 #bineado = 'fd'
-n,bin_positions_ajuste,p  = plt.hist(B, bins=bineado, color='lightsalmon', density=False)    #esta funcion, ademas de graficar devuelve parametros del histograma, que guardamos en las variables n,bin_positions,p
+n,bin_positions_ajuste,p  = plt.hist(B_mRFP, bins=bineado, color='lightsalmon', density=False)    #esta funcion, ademas de graficar devuelve parametros del histograma, que guardamos en las variables n,bin_positions,p
 bin_size_ajuste=bin_positions_ajuste[1]-bin_positions_ajuste[0] # calculo el ancho de los bins del histograma
 plt.title('mRFP')
 plt.tick_params(which='minor', length=5, width=2)
@@ -97,33 +72,18 @@ plt.yscale('log')
 #figManager.window.showMaximized()   
 plt.show()
 
-
-##==============================================================================
-##
-##                                    M6a - mRFP
-##
-##==============================================================================    
-im = Image.open(r'C:\Users\ETCasa\Nextcloud\UNSAM\UNSAM 28-11 EXP 3 y 4\Experimento 4\Neuronas\M6a RFP\Image0020.tif.frames\Image0020_C001T001.tif')   #importa la imagen .tif
-im = np.array(im) #crea una matriz de valores de la imagen importada
-imarray = [im.tolist()]
-i=1
-while i<len(indice):
-    im = Image.open(r'C:\Users\ETCasa\Nextcloud\UNSAM\UNSAM 28-11 EXP 3 y 4\Experimento 4\Neuronas\M6a RFP\Image0020.tif.frames\Image0020_C001T{}.tif'.format(indice[i]))    
-    im = np.array(im) #crea una matriz de valores de la imagen importada
-    imarray.append(im.tolist())
-    print(i)    
-    i+=1
-imarray = np.array(imarray)
-
-STD = np.std(imarray, axis=0)
-k_medio = np.mean(imarray, axis=0)
-B = np.divide(STD**2-sigma_cero**2,k_medio-detector_offset)
-B = B.ravel()
-
+#==============================================================================
+#                                Gráficos M6a
+#==============================================================================  
+plt.figure()
+#plt.hexbin(k_medio.ravel(),B)
+plt.hist2d(k_medio_M6a.ravel(),B_M6a,bins=500,range=[[min(k_medio_M6a.ravel()), max(k_medio_M6a.ravel())], [min(B_M6a), max(B_M6a)]],
+           norm=colors.LogNorm())
+plt.show()
 
 bineado = 2500
-plt.figure(2)
-n,bin_positions_ajuste,p  = plt.hist(B, bins=bineado, color='yellowgreen', density=False)    #esta funcion, ademas de graficar devuelve parametros del histograma, que guardamos en las variables n,bin_positions,p
+plt.figure()
+n,bin_positions_ajuste,p  = plt.hist(B_M6a, bins=bineado, color='yellowgreen', density=False)    #esta funcion, ademas de graficar devuelve parametros del histograma, que guardamos en las variables n,bin_positions,p
 bin_size_ajuste=bin_positions_ajuste[1]-bin_positions_ajuste[0] # calculo el ancho de los bins del histograma
 plt.title('M6a - mRFP')
 plt.tick_params(which='minor', length=5, width=2)
@@ -135,6 +95,34 @@ plt.yscale('log')
 #figManager = plt.get_current_fig_manager()  ####   esto y la linea de abajo me maximiza la ventana de la figura
 #figManager.window.showMaximized()   
 plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -156,7 +144,7 @@ plt.show()
 #
 #
 #a1 = [a1.tolist()]
-#
+#impor
 #i=1
 #while i<4:
 #    a2 = a2*i
@@ -174,8 +162,12 @@ plt.show()
 #
 #
 #b=np.concatenate((a1,a2))
-#
+##
 #b=np.reshape(b,(2,2,3))
-#
-#
+##
+#print(np.sum(b,axis=0))
+##
+#print(np.sum(b,axis=1))
+##
+#print(np.sum(b,axis=2))
 
