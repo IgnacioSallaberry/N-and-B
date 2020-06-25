@@ -46,7 +46,7 @@ def stack_de_imagenes(name, DIVIDER=2, bits=np.uint16):
     im = (((io.imread(name)).astype(bits))/DIVIDER).astype(int)
 
     imagenes = [(im[0]).tolist()]
-    i=0
+    i=1
     while i<len(im):
         imagenes.append((im[i]).tolist())
         i+=1
@@ -72,7 +72,7 @@ def selector_de_imagenes(stack, primera_imagen=0, cantidad_de_imagenes=1, interv
     
     return np.array(imagenes)
 
-def guardar_imagen(array,ubicacion,nombre,bits=np.uint16):
+def guardar_imagen_por_imagen(array,ubicacion,nombre,bits=np.uint16):
     i=0
     while i<len(array):
         imagen = Image.fromarray(array[i].astype(bits)) # float32
