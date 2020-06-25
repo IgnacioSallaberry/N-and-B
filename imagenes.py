@@ -7,6 +7,7 @@ Created on Fri May 22 19:21:02 2020
 from PIL import Image
 import numpy as np
 from skimage import io
+from tifffile import imsave
 
 def Imagenes(name,DIVIDER=2):
     #    
@@ -71,3 +72,14 @@ def selector_de_imagenes(stack, primera_imagen=0, cantidad_de_imagenes=1, interv
     
     return np.array(imagenes)
 
+def guardar_imagen(array,ubicacion,nombre,bits=np.uint16):
+    i=0
+    while i<len(array):
+        imagen = Image.fromarray(array[i].astype(bits)) # float32
+        imagen.save(ubicacion+r'\{}{}.tif'.format(nombre,i), "TIFF")
+        i+=1
+
+def guardar_stack_de_imagenes(imagenes,ubicacion,nombre,bits=np.uint16):
+    imsave(ubicacion+r'\{}.tif'.format(nombre), imagenes_python.astype(bits))
+
+    
